@@ -2,7 +2,7 @@ function Node(x = null, y = null, movesAvailable = []) {
     return { x, y, movesAvailable }
 }
 
-function possibleMoves(node) {
+function getPossibleMoves(node) {
     let possibleXMoves = [1, 2, 1, 2, -1, -2, -1, -2];
     let possibleYMoves = [2, 1, -2, -1, 2, 1, -2, -1];
     let currentNode = node;
@@ -19,11 +19,8 @@ function possibleMoves(node) {
             currentNode.movesAvailable.push(newNode);
         }
     }
-
-    return currentNode;
+    return currentNode.movesAvailable;
 }
-
-let testNode = Node(6, 7);
 
 function knightMoves(start, end) {
     let startNode = Node(start[0], start[1])
@@ -33,22 +30,22 @@ function knightMoves(start, end) {
     
     while (queue.length != 0) {
         let visitedNode = queue.shift();
-
+        
         if (visitedNode.x === end[0] && visitedNode.y === end[1]) {
             return visitedNode + "reached!";
         }   
         
-        let allMovesOfNode = possibleMoves(visitedNode);
+        let currentNodeMoves = getPossibleMoves(visitedNode);
         
-        allMovesOfNode.movesAvailable.forEach(element => {
+        currentNodeMoves.forEach(element => {
             queue.push(element);
         });
-    }
-    
+    } 
 }
+let testNode = Node(3, 3);
 
-// console.log(possibleMoves(testNode));
-console.log(knightMoves([2, 3], [6, 3]));
+// console.log(getPossibleMoves(testNode));
+console.log(knightMoves([0, 0], [1, 2]));
 
 
 /* 
