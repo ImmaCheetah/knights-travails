@@ -1,5 +1,5 @@
-function Node(x = null, y = null, movesAvailable = []) {
-    return { x, y, movesAvailable }
+function Node(x = null, y = null, movesAvailable = [], parentNode = null) {
+    return { x, y, movesAvailable, parentNode }
 }
 
 function getPossibleMoves(node) {
@@ -28,7 +28,7 @@ function knightMoves(start, end) {
     let visitedNodesArray = [];
     let parentPath = [];
     let distance = 0;
-    let parentNode = null;
+    // let parentNode = null;
     queue.push(startNode);
     
     while (queue.length != 0) {
@@ -38,14 +38,18 @@ function knightMoves(start, end) {
             console.log('exists');
         } else if (visitedNode.x === end[0] && visitedNode.y === end[1]){
             console.log(visitedNodesArray);
+            console.log(parentPath);
             return `Made it to [${end}], verification [${visitedNode.x},${visitedNode.y}]`;            
         } else {
-            visitedNodesArray.push([visitedNode.x, visitedNode.y]);
+            visitedNodesArray.push([visitedNode]);
+
             let currentNodeMoves = getPossibleMoves(visitedNode);
-            // somehow switch parent here?
+
             currentNodeMoves.forEach(element => {
+                element.parentNode = visitedNode;
                 queue.push(element);
             });
+            parentPath.push(visitedNode.parentNode);
         }
     } 
 }
