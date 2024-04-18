@@ -2,6 +2,7 @@ function Node(x = null, y = null, movesAvailable = [], parentNode = null) {
     return { x, y, movesAvailable, parentNode }
 }
 
+// Go through the first index of 2 array to generate all possible moves
 function getPossibleMoves(node) {
     let possibleXMoves = [1, 2, 1, 2, -1, -2, -1, -2];
     let possibleYMoves = [2, 1, -2, -1, 2, 1, -2, -1];
@@ -14,7 +15,8 @@ function getPossibleMoves(node) {
         let newNode = Node(xMove, yMove);
 
         if (xMove < 0 || xMove > 7 || yMove < 0 || yMove > 7) {
-            continue;
+            console.log("No such coordinate exists");
+            return;
         } else {
             currentNode.movesAvailable.push(newNode);
         }
@@ -26,42 +28,51 @@ function knightMoves(start, end) {
     let startNode = Node(start[0], start[1])
     let queue = [];
     let visitedNodesArray = [];
-    let parentPath = [];
+    let shortestPath = [];
     let distance = 0;
+    // Insert first node in array so it's not empty
     queue.push(startNode);
     
     while (queue.length != 0) {
-        let visitedNode = queue.shift();
+        // Take first node in queue
+        let currentNode = queue.shift();
 
-        if (containsMove(visitedNodesArray, [visitedNode.x, visitedNode.y])) {
+        // Check if it has been visited yet
+        if (containsMove(visitedNodesArray, [currentNode.x, currentNode.y])) {
             continue;
-        } else if (visitedNode.x === end[0] && visitedNode.y === end[1]){
-            visitedNodesArray.push([visitedNode]);
-            console.log(visitedNodesArray);
-            console.log(parentPath);
-            let resultPath = displayMovesArray(parentPath);
-            return `You made it in ${distance} move(s)! Here is the path: \n${resultPath}`;           
+        // Compare the coordinates of current node with argument given and print result if it matches
+        } else if (currentNode.x === end[0] && currentNode.y === end[1]){
+            visitedNodesArray.push([currentNode]);
+
+            let thisNode = currentNode.parentNode;
+            // Use parentNode as a linked list and traverse up until it reaches the start which gives the shortest path
+            while (thisNode != null) {
+                shortestPath.unshift([thisNode.x, thisNode.y]);
+                distance += 1;
+                thisNode = thisNode.parentNode;
+            }
+            // Add end coordinate to array
+            shortestPath.push(end);
+            return `You made it in ${distance} move(s)! Here is the path: \n${displayMovesArray(shortestPath)}`; 
+
         } else {
-            visitedNodesArray.push([visitedNode]);
-
-            let currentNodeMoves = getPossibleMoves(visitedNode);
-
+            // Add current node to visited array
+            visitedNodesArray.push([currentNode]);
+            // Get all the possible moves of current node
+            let currentNodeMoves = getPossibleMoves(currentNode);
+            
+            // Loop through the moves 
+            // Assign the current node to be parent of the current moves being looped over
+            // Add to queue
             currentNodeMoves.forEach(element => {
-                element.parentNode = visitedNode;
+                element.parentNode = currentNode;
                 queue.push(element);
             });
-            if (visitedNode.parentNode == null) {
-                continue;
-            } else {
-                if (!containsMove(parentPath, [visitedNode.parentNode.x, visitedNode.parentNode.y])) {
-                    parentPath.push([visitedNode.parentNode.x, visitedNode.parentNode.y]);
-                    distance += 1;
-                }
-            }
         }
     } 
 }
 
+// Checks a 2D array if an array exists inside it
 function containsMove(arrayToSearch, arrayToFind) {
     let output = false;
 
@@ -73,10 +84,10 @@ function containsMove(arrayToSearch, arrayToFind) {
         }
 
     }
-
     return output;
 }
 
+// Formats the shortest path to print each element on a new line
 function displayMovesArray(array) {
     let resultString = '';
     array.forEach((element) => {
@@ -85,35 +96,6 @@ function displayMovesArray(array) {
 
     return resultString;
 }
-console.log(knightMoves([3, 3], [0, 0]));
-// console.log(getPossibleMoves(Node(3, 3)));
+console.log(knightMoves([3, 3], [8, 9]));
+// console.log(knightMoves([4, 4], [1, 1]));
 
-
-// Shouldn't balloon really. You're finding the shortest path to every cell anyway. Yes, when you look at each adjacency, you want to check if it has been visited yet, and if not if it's the end point - and before adding it to the queue, tell it where it came from (its predecessor).
-
-/*
-For the starting position, we know it has a predecessor of null (as it's the first), and a distance from the start of 0. Then add it to the BFS list. 
-
-Now, we keep removing a thing from that BFS list, and perhaps check each of its adjacent cells and:
-has it been visited (does it have a distance yet)? If so, skip it.
-is it the ending point? Build the predecessor list into a path, and return that.
-otherwise,  give it a predecessor reference, and a distance of one more than its predecessor's, then add it to the BFS list.
- 
-We stop when the BFS list is empty (when no more cells can be pushed on, meaning they've all been visited) or when we have a valid path.*/
-
-
-
-/* 
-Define how a knight can move 
-Get start and end
-Create a queue
-Create array to keep track of visited nodes
-Add start node to queue
-Check if node exists in visited nodes
-Pop the start node and check if its the same as end coordinate
-    - If it is, end and return
-Else
-    - Find all possible moves/nodes from that coordinate
-    - Add all of them to queue
-
-*/
